@@ -33,17 +33,6 @@ jobs:
             container: archlinux:latest
             c_compiler: clang
             cpp_compiler: clang++
-        exclude:
-          - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
-          - os: ubuntu-latest
-            c_compiler: gcc
-          - os: macos-latest
-            c_compiler: gcc
-          - os: ubuntu-arch
-            c_compiler: gcc
 
     steps:
     - uses: actions/checkout@v4
