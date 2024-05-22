@@ -1,6 +1,5 @@
 
-name: CMake on multiple platforms
-
+name: Build Project
 on:
   push:
     branches: [ "AutoBuild-Test" ]
