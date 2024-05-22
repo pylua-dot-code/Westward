@@ -68,9 +68,13 @@ jobs:
       run: |
         powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
 
+    - name: Generate unique identifier
+      id: uniqueid
+      run: echo "::set-output name=unique::$(date +%Y%m%d%H%M%S%3N)-${RANDOM}"
+
     - name: Upload build artifact
       if: success()
       uses: actions/upload-artifact@v4
       with:
-        name: build-${{ matrix.os }}-${{ matrix.build_type }}-${{ github.job }}-${{ github.sha }}
+        name: build-${{ matrix.os }}-${{ matrix.build_type }}-${{ github.job }}-${{ github.sha }}-${{ steps.uniqueid.outputs.unique }}
         path: ${{ steps.strings.outputs.build-output-dir }}.zip
