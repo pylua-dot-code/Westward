@@ -47,25 +47,25 @@ jobs:
 
     - name: Configure CMake
       run: |
-        if [ "${{ matrix.os }}" == "ubuntu-arch" ]; then
-          docker run --rm --name archlinux -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest \
+        if ($env:matrix_os -eq "ubuntu-arch") {
+          docker run --rm --name archlinux -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest `
           cmake -B /workspace/build -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -S /workspace
-        else
-          cmake -B ${{ steps.strings.outputs.build-output-dir }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+        } else {
+          cmake -B ${{ steps.strings.outputs.build-output-dir }} `
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
           -S ${{ github.workspace }}
-        fi
+        }
 
     - name: Build
       run: |
-        if [ "${{ matrix.os }}" == "ubuntu-arch" ]; then
-          docker run --rm --name archlinux -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest \
+        if ($env:matrix_os -eq "ubuntu-arch") {
+          docker run --rm --name archlinux -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest `
           cmake --build /workspace/build --config Release
-        else
+        } else {
           cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-        fi
+        }
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
