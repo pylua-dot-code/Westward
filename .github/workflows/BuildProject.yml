@@ -2,10 +2,10 @@
 name: Build Project
 on:
   push:
-    branches: [ "AutoBuild-Test" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "AutoBuild-Test" ]
-
+    branches: ["main"]
+    
 jobs:
   build:
     runs-on: ${{ matrix.os }}
