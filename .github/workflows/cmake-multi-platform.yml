@@ -70,7 +70,7 @@ jobs:
 
     - name: Upload build artifact
       if: success()
-      uses: actions/upload-artifact@v4 # Updated to version 4
+      uses: actions/upload-artifact@v4
       with:
-        name: build-${{ matrix.os }}-${{ matrix.build_type }}
+        name: build-${{ matrix.os }}-${{ matrix.build_type }}-${{ github.run_id }}-${{ github.timestamp }}
         path: ${{ steps.strings.outputs.build-output-dir }}.zip
