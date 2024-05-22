@@ -78,5 +78,5 @@ jobs:
       if: success()
       uses: actions/upload-artifact@v4
       with:
-        name: build-${{ matrix.os }}-${{ matrix.build_type }}-${{ github.job }}-${{ github.sha }}
+        name: Westward-build-${{ matrix.os }}-${{ matrix.build_type }}-${{ github.job }}-${{ github.sha }}
         path: ${{ steps.strings.outputs.build-output-dir }}.zip
