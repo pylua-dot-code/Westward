@@ -33,6 +33,10 @@ jobs:
             c_compiler: clang
           - os: ubuntu-latest
             c_compiler: cl
+          - os: macos-latest
+            c_compiler: gcc
+          - os: macos-latest
+            c_compiler: cl
 
     steps:
     - uses: actions/checkout@v4
@@ -75,7 +79,7 @@ jobs:
 
     - name: Upload build artifact
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-${{ matrix.os }}-${{ matrix.build_type }}
         path: ${{ steps.strings.outputs.build-output-dir }}.zip
@@ -119,7 +123,7 @@ jobs:
         zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
 
     - name: Upload build artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-archlinux-Release
         path: ${{ steps.strings.outputs.build-output-dir }}.zip
