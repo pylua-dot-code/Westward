@@ -73,21 +73,15 @@ jobs:
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
 
-    - name: Create a zip file of the build directory (Linux)
-      if: runner.os == 'Linux'
+    - name: Create a zip file of the build directory
       run: |
-        zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
-
-    - name: Create a zip file of the build directory (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
-
-    - name: Create a zip file of the build directory (MacOS)
-      if: runner.os == 'macOS'
-      run: |
-        zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
-
+        if [[ "${{ runner.os }}" == "Linux" ]]; then
+          zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
+        elif [[ "${{ runner.os }}" == "Windows" ]]; then
+          powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
+        elif [[ "${{ runner.os }}" == "macOS" ]]; then
+          zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
+        fi
     - name: Generate unique identifier
       run: echo "UNIQUE_ID=$(date +%Y%m%d%H%M%S%3N)-${RANDOM}" >> $GITHUB_ENV
 
