@@ -1,3 +1,4 @@
+
 name: CMake on multiple platforms
 
 on:
@@ -13,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
@@ -29,10 +30,15 @@ jobs:
           - os: macos-latest
             c_compiler: clang
             cpp_compiler: clang++
-          - os: ubuntu-arch
-            container: archlinux:latest
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
             c_compiler: clang
-            cpp_compiler: clang++
+          - os: ubuntu-latest
+            c_compiler: cl
+          - os: macos-latest
+            c_compiler: cl
 
     steps:
     - uses: actions/checkout@v4
@@ -42,7 +48,6 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
     - name: Configure CMake
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -50,33 +55,21 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
-
     - name: Build
-      run: |
-        if [ "${{ matrix.os }}" == "ubuntu-arch" ]; then
-        (
-          docker run --rm --name archlinux -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest \
-          cmake --build /workspace/build --config Release
-        )
-        else
-        (
-          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-        )
-        fi
-        
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
 
-    - name: Create a zip file of the build directory
+    - name: Create a zip file of the build directory (Linux)
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       run: |
-        if [[ "${{ runner.os }}" == "Linux" ]]; then
-          zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
-        elif [[ "${{ runner.os }}" == "Windows" ]]; then
-          powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
-        elif [[ "${{ runner.os }}" == "macOS" ]]; then
-          zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
-        fi
+        zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
+    - name: Create a zip file of the build directory (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
     - name: Generate unique identifier
       run: echo "UNIQUE_ID=$(date +%Y%m%d%H%M%S%3N)-${RANDOM}" >> $GITHUB_ENV
 
