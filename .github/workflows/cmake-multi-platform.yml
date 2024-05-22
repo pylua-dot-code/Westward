@@ -26,13 +26,24 @@ jobs:
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: ubuntu-arch
+            container: archlinux:latest
+            c_compiler: clang
+            cpp_compiler: clang++
         exclude:
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
           - os: ubuntu-latest
-            c_compiler: cl
+            c_compiler: gcc
+          - os: macos-latest
+            c_compiler: gcc
+          - os: ubuntu-arch
+            c_compiler: gcc
 
     steps:
     - uses: actions/checkout@v4
@@ -52,8 +63,12 @@ jobs:
         -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-
+        if [ "${{ matrix.os }}" == "ubuntu-arch" ]; then
+          docker run --rm --name archlinux -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest \
+          cmake --build /workspace/build --config Release
+        else
+          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        fi
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
@@ -67,6 +82,11 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
+
+    - name: Create a zip file of the build directory (MacOS)
+      if: runner.os == 'macOS'
+      run: |
+        zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
 
     - name: Generate unique identifier
       run: echo "UNIQUE_ID=$(date +%Y%m%d%H%M%S%3N)-${RANDOM}" >> $GITHUB_ENV
