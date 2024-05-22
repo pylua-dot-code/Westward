@@ -58,14 +58,19 @@ jobs:
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
 
-    - name: Create a zip file of the build directory
-      if: success()
+    - name: Create a zip file of the build directory (Linux)
+      if: runner.os == 'Linux'
       run: |
         zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
 
+    - name: Create a zip file of the build directory (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
+
     - name: Upload build artifact
       if: success()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.2.0
       with:
         name: build-${{ matrix.os }}-${{ matrix.build_type }}
         path: ${{ steps.strings.outputs.build-output-dir }}.zip
