@@ -54,10 +54,14 @@ jobs:
     - name: Build
       run: |
         if [ "${{ matrix.os }}" == "ubuntu-arch" ]; then
+        (
           docker run --rm --name archlinux -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest \
           cmake --build /workspace/build --config Release
+        )
         else
+        (
           cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        )
         fi
         
     - name: Test
