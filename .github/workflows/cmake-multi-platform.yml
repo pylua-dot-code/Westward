@@ -16,61 +16,58 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
-        include:
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
-          - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
-          - os: ubuntu-latest
-            c_compiler: clang
-            cpp_compiler: clang++
-        exclude:
-          - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
-          - os: ubuntu-latest
-            c_compiler: cl
+        cpp_compiler: [g++, clang++, cl]
+      include:
+        - os: windows-latest
+          c_compiler: cl
+          cpp_compiler: cl
+        - os: ubuntu-latest
+          c_compiler: gcc
+          cpp_compiler: g++
+        - os: ubuntu-latest
+          c_compiler: clang
+          cpp_compiler: clang++
+      exclude:
+        - os: windows-latest
+          c_compiler: gcc
+          cpp_compiler: g++
+        - os: windows-latest
+          c_compiler: clang
+          cpp_compiler: clang++
+        - os: ubuntu-latest
+          c_compiler: cl
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: Set reusable strings
-      id: strings
-      shell: bash
+    - name: Set reusable variables
+      id: vars
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        echo "build_output_dir=${{ github.workspace }}/build" >> $GITHUB_ENV
+        echo "::set-output name=build_output_dir::${{ github.workspace }}/build"
 
     - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -S ${{ github.workspace }}
+      run: cmake -B ${{ steps.vars.outputs.build_output_dir }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+      run: cmake --build ${{ steps.vars.outputs.build_output_dir }} --config ${{ matrix.build_type }}
 
     - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      working-directory: ${{ steps.vars.outputs.build_output_dir }}
       run: ctest --build-config ${{ matrix.build_type }}
 
-    - name: Create a zip file of the build directory (Linux)
-      if: runner.os == 'Linux'
+    - name: Create a zip file of the build directory
+      if: runner.os == 'Linux' || runner.os == 'Windows'
       run: |
-        zip -r ${{ steps.strings.outputs.build-output-dir }}.zip ${{ steps.strings.outputs.build-output-dir }}
-
-    - name: Create a zip file of the build directory (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
+        $zipCmd = if ($IsWindows) { "Compress-Archive" } else { "zip -r" }
+        $outputFile = "${{ steps.vars.outputs.build_output_dir }}.zip"
+        $inputDir = ${{ steps.vars.outputs.build_output_dir }}
+        $zipCmd -Path $inputDir -DestinationPath $outputFile
 
     - name: Upload build artifact
       if: success()
       uses: actions/upload-artifact@v3
       with:
         name: build-${{ matrix.os }}-${{ matrix.build_type }}
-        path: ${{ steps.strings.outputs.build-output-dir }}.zip
+        path: ${{ steps.vars.outputs.build_output_dir }}.zip
