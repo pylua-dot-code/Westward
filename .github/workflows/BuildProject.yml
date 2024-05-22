@@ -43,13 +43,15 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> $GITHUB_ENV
         echo "UNIQUE_ID=$(date +%Y%m%d%H%M%S%3N)-${RANDOM}" >> $GITHUB_ENV
-    - name: Configure CMake
-      run: >
+    -  name: Configure CMake
+       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
+
+        
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
