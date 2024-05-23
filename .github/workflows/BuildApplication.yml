@@ -71,12 +71,17 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         powershell Compress-Archive -Path ${{ steps.strings.outputs.build-output-dir }} -DestinationPath ${{ steps.strings.outputs.build-output-dir }}.zip
-    - name: Generate unique identifier
-      run: echo "UNIQUE_ID=$(date +%Y%m%d%H%M%S%3N)-${RANDOM}" >> $GITHUB_ENV
+
+    - name: Check Runner Architecture
+      id: check_arch
+      run: |
+        echo "Runner architecture: $(uname -m)"
+        echo "RUNNER_ARCH=$(uname -m)" >> $GITHUB_ENV
+
 
     - name: Upload build artifact
       if: success()
       uses: actions/upload-artifact@v4
       with:
-        name: ${{runner.os}}-Westward-Nightly-${{ matrix.build_type }}-${{ github.job }}-${{ github.sha }}
+        name: ${{runner.os}}-${{ env.RUNNER_ARCH }}-Westward-Nightly-${{ matrix.build_type }}-${{ github.job }}-${{ github.sha }}
         path: ${{ steps.strings.outputs.build-output-dir }}.zip
