@@ -4,7 +4,7 @@ A Oregon Trail clone that written in C++.
 
 ## About the project
 
-This project was created to help me (pylua) learn to code in C++. So far, I have primarily programmed in higher-level languages, mainly C#, Python, Lua, and Web3 (HTML, JavaScript, CSS). My lack of experience with lower-level programming languages has made some coding problems more challenging for me to solve, so I wanted to learn C++. This project is the result of my first attempt at C++ programming. Below you can find information about this project like libraries, machine, tools, and compilers I used to make it.
+Making this project to help me learn C++. It will have DOSLike Graphics (Like the original game), sound effects, and custom save files.  
 
 ## Information
 
