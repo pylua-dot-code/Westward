@@ -4,7 +4,7 @@ A Oregon Trail clone that written in C++.
 
 ## About the project
 
-Making this project to help me learn C++. It will have DOSLike Graphics (Like the original game), sound effects, and custom save files.  
+Making this project to help me learn C++. It will have DOSLike Graphics (Like how the original game looked), sound effects, and custom save files.  
 
 ## Information
 
