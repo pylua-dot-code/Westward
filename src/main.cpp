@@ -1,8 +1,6 @@
 #include <iostream>
-#include <SFML/Window.hpp>
 
 int main() {
-    sf::Window window(sf::VideoMode(800, 600), "My window");
-    
+    std::cout << "Hello, C++!" << std::endl;
     return 0;
 }
