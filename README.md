@@ -1,5 +1,5 @@
 # Westward C++
-
+# Yeah no way imma learn this 💀 imma learn rust or something
 A Oregon Trail clone that written in C++.
 
 ## About the project
